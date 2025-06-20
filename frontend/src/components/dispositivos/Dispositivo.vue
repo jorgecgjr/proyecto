@@ -19,7 +19,7 @@
       </ul>
     </div>
     <div class="card-footer text-center">
-      <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#detalleDispositivo" @click="$emit('setDispositivo', dispositivo)">
+      <button class="btn btn-outline-primary" @click="$emit('setDispositivo', dispositivo)">
         Ver Detalles
       </button>
     </div>

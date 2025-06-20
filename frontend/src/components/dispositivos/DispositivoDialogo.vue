@@ -2,7 +2,7 @@
 <!-- Button trigger modal -->
 
 <!-- Modal -->
-<div class="modal fade" id="detalleDispositivo" tabindex="-1" aria-labelledby="detalleDispositivoLabel" aria-hidden="true">
+<div v-if="dispositivo" vclass="modal fade" id="detalleDispositivo" tabindex="-1" aria-labelledby="detalleDispositivoLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

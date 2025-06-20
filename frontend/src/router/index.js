@@ -1,15 +1,17 @@
-// router/index.js
-import { createRouter, createWebHistory } from 'vue-router';
-import ViewLogin from '../components/sesion/ViewLogin.vue';
-import ViewRegistroUsuario from '../components/sesion/ViewRegistroUsuario.vue';
-import ViewMenu from '../components/principal/ViewMenu.vue';
-import ViewDispositivos from '../components/dispositivos/ViewDispositivos.vue';
-// ... importa otros componentes
+import { createRouter, createWebHistory } from 'vue-router'
+import ViewLogin from '../components/sesion/ViewLogin.vue'
+import ViewRegistroUsuario from '../components/sesion/ViewRegistroUsuario.vue'
+import ViewMenu from '../components/principal/ViewMenu.vue'
+import ViewDispositivos from '../components/dispositivos/ViewDispositivos.vue'
+import RegistroDispositivo from '../components/dispositivos/RegistroDispositivo.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // Rutas públicas/de sesión en el nivel superior
+    {
+      path: '/',
+      redirect: '/login'
+    },
     {
       path: '/login',
       name: 'login',
@@ -20,29 +22,25 @@ const router = createRouter({
       name: 'registro',
       component: ViewRegistroUsuario
     },
-    // Ruta protegida que usa el layout del Menú
     {
       path: '/menu',
-      name: 'menu',
       component: ViewMenu,
-      // Las vistas que aparecen DENTRO del menú van como hijas
+      // Al navegar a /menu, redirige automáticamente a la vista de dispositivos
+      redirect: '/menu/dispositivos', 
       children: [
         {
-          path: 'dispositivos', // La ruta completa será /menu/dispositivos
+          path: 'dispositivos', // Se renderiza en el <router-view> de ViewMenu
           name: 'dispositivos',
           component: ViewDispositivos
         },
-        // ... otras vistas del menú aquí
-      ],
-      // Opcional: Redirección por defecto para /menu
-      redirect: '/menu/dispositivos' 
-    },
-    // Redirección para la ruta raíz
-    {
-      path: '/',
-      redirect: '/login'
+        {
+          path: 'agregar', // Se renderiza en el <router-view> de ViewMenu
+          name: 'agregar',
+          component: RegistroDispositivo
+        }
+      ]
     }
   ]
-});
+})
 
-export default router;
+export default router

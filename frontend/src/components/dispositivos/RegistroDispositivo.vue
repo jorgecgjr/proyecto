@@ -6,17 +6,13 @@
         <hr />
     </div>
     <div class="row p-1"> 
-        <form>
+        <form @submit.prevent="guardar">
               <div class="form-floating p-1">
-                <input type="text" id="identificador" ref="identificador" class="form-control" v-model="dispositivo.identifica.identificador" v-on:keyup.enter="tfPassword()" aria-describedby="Id" placeholder="Identificador"/>
-                <label id="identificador" class="form-text text-muted">Identificador</label>
-              </div>            
-              <div class="form-floating p-1">
-                <input type="text" id="nombreDisp" ref="nombreDisp" class="form-control" v-model="dispositivo.identifica.nombre" v-on:keyup.enter="" aria-describedby="Nombre" placeholder="Nombre del dispositivo"/>
+                <input type="text" id="nombreDisp" ref="nombreDisp" class="form-control" v-model="dispositivo.nombre" required/>
                 <label id="nombreDisp" class="form-text text-muted">Nombre del dispositivo</label>
               </div>
               <div class="form-floating p-1">
-                <input type="text" id="ubicacion" ref="ubicacion" class="form-control" v-model="dispositivo.identifica.ubicacion" v-on:keyup.enter="" aria-describedby="Ubicacion" placeholder="Ubicacion"/>
+                 <input type="text" id="ubicacion" ref="ubicacion" class="form-control" v-model="dispositivo.ubicacion"/>
                 <label id="ubicacion" class="form-text text-muted">Ubicación</label>
               </div>
             </form>
@@ -46,45 +42,44 @@ export default {
   name: 'RegistroDispositivo',
   data() {
     return {
+      // Usamos una estructura de datos completa con valores por defecto
       dispositivo: {
         nombre: '',
         ubicacion: '',
-        coordenadas: '',
-        potencia: { nominal: 0, medido: 0 },
-        voltaje: { nominal: 0, medido: 0 },
-        corriente: { nominal: 0, medido: 0 },
-        caudal: { nominal: 0, medido: 0 },
-        estado: 1
+        coordenadas: '19.7060° N, 101.1950° W',
+        potencia:  { nominal: 7.400, minimo: 6.200, maximo: 8.600, um: 'KW' },
+        voltaje: { nominal: 240, minimo: 230, maximo: 250, um: 'Volts' },
+        corriente: { nominal: 30, minimo: 25, maximo: 35, um: 'Amperes' },
+        caudal: { nominal: 1, minimo: 0.10, maximo: 1.20, um: 'm3/minuto' },
+        estado: 1 // 1: Operacion Normal
       },
-      alerta: ''
+      alerta: {
+        mensaje: '',
+      }
     };
   },
   methods: {
     async guardar() {
-      this.alerta = '';
+      this.alerta.mensaje = '';
       try {
         const url = 'http://localhost:3000/api/dispositivos';
-        // El backend espera que potencia, voltaje, etc., sean objetos JSON
-        // y nuestro 'this.dispositivo' ya tiene esa estructura.
+        
+        // Enviamos el objeto 'dispositivo' completo. El backend ya espera esta estructura plana.
         const response = await axios.post(url, this.dispositivo);
 
         console.log('Dispositivo guardado:', response.data);
         
-        // Opcional: Emitir un evento para que la lista de dispositivos se actualice
-        this.$emit('dispositivo-agregado');
-
-        // Cerrar el modal o limpiar el formulario (depende de tu implementación)
-        // Por ejemplo, si usas un modal de Bootstrap, puedes ocultarlo:
-        const modalElement = this.$refs.modal; // Asegúrate de tener un ref="modal" en tu elemento modal
-        if (modalElement) {
-          const modal = bootstrap.Modal.getInstance(modalElement);
-          if (modal) modal.hide();
-        }
+        // Redirigimos al usuario a la lista de dispositivos
+        this.$router.push({ name: 'dispositivos' });
         
       } catch (error) {
         console.error('Error al guardar el dispositivo:', error);
-        this.alerta = 'No se pudo guardar el dispositivo. Verifique los datos.';
+        this.alerta.mensaje = 'No se pudo guardar el dispositivo. Verifique los datos e intente de nuevo.';
       }
+    },
+    limpiar() {
+        // Al cancelar, simplemente regresamos a la lista
+        this.$router.push({ name: 'dispositivos' });
     }
   }
 };

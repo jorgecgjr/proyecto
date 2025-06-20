@@ -12,7 +12,7 @@
                         <router-link class="nav-link active" aria-current="page" to="/menu/dispositivos" ><i class="bi bi-box-arrow-left"></i> Dispositivos</router-link>
                     </li>
                     <li class="nav-item">
-                      <router-link class="nav-link" aria-current="page" to="/menu/dispositivos/agregar" ><i class="bi bi-box-arrow-left"></i> Agregar Dispositivo</router-link>
+                      <router-link class="nav-link" aria-current="page" to="/menu/agregar" ><i class="bi bi-box-arrow-left"></i> Agregar Dispositivo</router-link>
                     </li>
                     <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -44,7 +44,7 @@ export default {
         return {}
     },
     methods: {
-        
+
     }
 
 }

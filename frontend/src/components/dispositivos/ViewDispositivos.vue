@@ -20,6 +20,7 @@
 import axios from 'axios';
 import Dispositivo from './Dispositivo.vue';
 import DispositivoDialogo from './DispositivoDialogo.vue';
+import { Modal } from 'bootstrap';
 
 export default {
   name: 'ViewDispositivos',
@@ -28,12 +29,29 @@ export default {
     DispositivoDialogo
   },
   data() {
-    return {
-      dispositivos: [],
-      selectedDispositivo: null,
-      nIntervId: null
-    };
-  },
+  return {
+    dispositivos: [],
+    // Inicializa con una estructura válida para evitar errores
+    selectedDispositivo: {
+      identifica: {
+        nombre: '',
+        ubicacion: '',
+        coordenadas: '',
+        potencia: {},
+        voltaje: {},
+        corriente: {},
+        caudal: {}
+      },
+      opera: {
+        potencia: {},
+        voltaje: {},
+        corriente: {},
+        caudal: {}
+      }
+    },
+    nIntervId: null
+  };
+},
   methods: {
     async getDispositivos() {
       try {
@@ -48,19 +66,41 @@ export default {
     },
     setDispositivo(dispositivo) {
       this.selectedDispositivo = dispositivo;
+      // Esperamos a que Vue actualice el DOM para asegurarnos de que el modal exista
+      this.$nextTick(() => {
+        const modalElement = document.getElementById('detalleDispositivo');
+        if (modalElement) {
+          const modal = new Modal(modalElement);
+          modal.show();
+        }
+      });
     },
     start() {
       if (!this.nIntervId) {
+        console.log('Iniciando monitoreo...');
         this.nIntervId = setInterval(this.refresh, 2000);
       }
     },
     stop() {
+      console.log('Deteniendo monitoreo...');
       clearInterval(this.nIntervId);
       this.nIntervId = null;
     },
+
     refresh() {
-        this.dispositivos.forEach(d => {
-            // Your existing refresh logic
+        console.log('Refrescando datos...');
+        this.dispositivos.forEach((item) => {
+            // Lógica de simulación de datos
+            const desv = 0.10; // Desviación del 10%
+            
+            let v = item.voltaje.nominal * (1 - desv + Math.random() * desv * 2);
+            let c = item.corriente.nominal * (1 - desv + Math.random() * desv * 2);
+            let p = (v * c) / 1000; // Potencia en KW
+
+            // Actualiza los valores medidos del dispositivo
+            item.potencia.medido = p.toFixed(2);
+            item.voltaje.medido = v.toFixed(2);
+            item.corriente.medido = c.toFixed(2);
         });
     }
   },
