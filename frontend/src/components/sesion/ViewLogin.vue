@@ -26,6 +26,9 @@
 </template>
 
 <script>
+// 1. Importa axios para hacer las llamadas a la API
+import axios from 'axios';
+
 export default {
   name: 'ViewLogin',
   data() {
@@ -40,11 +43,25 @@ export default {
     };
   },
   methods: {
+    // 2. Reemplaza la lógica de validación con una llamada a la API
     async validar() {
-      // This will be replaced with a call to the backend
-      if (this.login.userName === 'admin' && this.login.password === 'password') {
+      this.alerta.mensaje = ''; // Limpia alertas previas
+
+      try {
+        // La URL completa de tu API de login en el backend
+        const url = 'http://localhost:3000/api/login';
+
+        // Envía las credenciales al backend
+        const response = await axios.post(url, this.login);
+
+        console.log('Login exitoso:', response.data);
+
+        // Si el login es correcto, el backend responde con los datos del usuario.
+        // Ahora puedes redirigir al menú principal.
         this.$router.push('/menu');
-      } else {
+
+      } catch (error) {
+        console.error('Error en el login:', error);
         this.alerta.mensaje = 'Usuario o contraseña incorrectos.';
       }
     },

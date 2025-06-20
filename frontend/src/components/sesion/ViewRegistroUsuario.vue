@@ -30,6 +30,9 @@
 </template>
 
 <script>
+// 1. Importa axios para hacer las llamadas a la API
+import axios from 'axios';
+
 export default {
   name: 'ViewRegistroUsuario',
   data() {
@@ -44,11 +47,34 @@ export default {
       }
     };
   },
-  methods: {
-    guardar() {
-      // Logic to call the backend API to register the user
-      console.log('Registering user:', this.usuario);
-      this.$router.push('/login');
+methods: {
+    // 2. Convierte el método en asíncrono y añade la lógica de la API
+    async guardar() {
+      this.alerta.mensaje = ''; // Limpia cualquier alerta anterior
+
+      try {
+        // La URL completa de tu API de registro en el backend
+        const url = 'http://localhost:3000/api/register';
+
+        // Envía los datos del formulario al backend
+        const response = await axios.post(url, this.usuario);
+
+        console.log('Usuario registrado con éxito:', response.data);
+
+        // Si el registro es exitoso, redirige al usuario a la página de login
+        this.$router.push('/login');
+
+      } catch (error) {
+        console.error('Hubo un error al registrar el usuario:', error);
+        
+        // Si el backend envía un mensaje de error específico (ej. "usuario ya existe"), muéstralo
+        if (error.response && error.response.data && error.response.data.error) {
+          this.alerta.mensaje = error.response.data.error;
+        } else {
+          // Si no, muestra un error genérico
+          this.alerta.mensaje = 'No se pudo completar el registro. Inténtalo de nuevo.';
+        }
+      }
     },
     cancelar() {
       this.$router.push('/login');

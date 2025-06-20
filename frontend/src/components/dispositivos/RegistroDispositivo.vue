@@ -40,112 +40,54 @@
 </template>
       
 <script>
-import axios from 'axios'
-//import sessionStorage from '@/servicios/SessionStore'
-export default  {
-    name: 'RegistroDispositivo',
-    components: {
-    },
-    data: function() {
-        return {
-        uri: 'http://localhost:8080',
-        dispositivo: {
-          identifica: {
-            identificador: 0,
-            nombre: '',
-            ubicacion: '',
-            coordenadas: '19.7060° N, 101.1950° W',
-            idestatus: 1,
-            estatus: 'Operacion Normal',
-            potencia:  { nominal: 7.400, minimo: 6.200, maximo: 8.600, um: 'KW' },
-            voltaje: { nominal: 240, minimo: 230, maximo: 250, um: 'Volts' },
-            corriente: { nominal: 30, minimo: 25, maximo: 35, um: 'Amperes' },
-            caudal: { nominal: 1, minimo: 0.10, maximo: 1.20, um: 'm3/minuto' },
-            fechaRegistro: new Date().toUTCString()
-          },
-          opera: {
-            potencia: { valor: 7.200, idEstatus: 1 },
-            voltaje: { valor: 240, idEstatus: 1 },
-            corriente: { valor: 30, idEstatus: 1 },
-            caudal: { valor: 1, idEstatus: 1 },
-            idEstatus: 1,    // {1->Normal, 2->Advertencia, 3->Error}
-            estatus: 'Operacion Normal',
-            fechaRegistro: new Date().toUTCString()
-          },
-          estado: 1   // {1->Encendido, 2->Apagado, 3->Bloqueado}
-        },
-        alerta: {
-            mensaje: '',
-        }
-        };
-    },
-    computed: {
-    }, 
-    methods: {
-      guardar () {
-        const form = new FormData();
-        form.append('nombre', this.dispositivo.identifica.nombre)
-        form.append('ubicacion', this.dispositivo.identifica.ubicacion)
-        form.append('coordenadas', this.dispositivo.identifica.coordenadas)
-        form.append('pNom', this.dispositivo.identifica.potencia.nominal)
-        form.append('pMin', this.dispositivo.identifica.potencia.minimo)
-        form.append('pMax', this.dispositivo.identifica.potencia.maximo)
-        form.append('pU', this.dispositivo.identifica.potencia.um)
-        form.append('vNom', this.dispositivo.identifica.voltaje.nominal)
-        form.append('vMin', this.dispositivo.identifica.voltaje.minimo)
-        form.append('vMax', this.dispositivo.identifica.voltaje.maximo)
-        form.append('vU', this.dispositivo.identifica.voltaje.um)
-        form.append('aNom', this.dispositivo.identifica.corriente.nominal)
-        form.append('aMin', this.dispositivo.identifica.corriente.minimo)
-        form.append('aMax', this.dispositivo.identifica.corriente.maximo)
-        form.append('aU', this.dispositivo.identifica.corriente.um)
-        form.append('cNom', this.dispositivo.identifica.caudal.nominal)
-        form.append('cMin', this.dispositivo.identifica.caudal.minimo)
-        form.append('cMax', this.dispositivo.identifica.caudal.maximo)
-        form.append('cU', this.dispositivo.identifica.caudal.um)
+import axios from 'axios';
 
-        axios.post(`${this.uri}/dispositivos`,form)
-        .then((response) => {
-            console.log(response)
-            if(response.status === 200){
-              let dispositivos =  this.$store.state.dispositivos
-              dispositivos.push(this.dispositivo)
-              this.$store.commit('setDispositivos', dispositivos)
-              this.limpiar()
-            }
-        })
-        .catch((response) => {
-            console.log(response)
-        })
+export default {
+  name: 'RegistroDispositivo',
+  data() {
+    return {
+      dispositivo: {
+        nombre: '',
+        ubicacion: '',
+        coordenadas: '',
+        potencia: { nominal: 0, medido: 0 },
+        voltaje: { nominal: 0, medido: 0 },
+        corriente: { nominal: 0, medido: 0 },
+        caudal: { nominal: 0, medido: 0 },
+        estado: 1
       },
-      limpiar() {
-        this.dispositivo = {
-          identifica: {
-            identificador: 0,
-            nombre: '',
-            ubicacion: '',
-            coordenadas: '19.7060° N, 101.1950° W',
-            potencia:  { nominal: 7.200, minimo: 6.200, maximo: 8.600, um: 'KW' },
-            voltaje: { nominal: 240, minimo: 230, maximo: 250, um: 'Volts' },
-            corriente: { nominal: 30, minimo: 25, maximo: 35, um: 'Amperes' },
-            caudal: { nominal: 1, minimo: 0.10, maximo: 1.20, um: 'm3/minuto' },
-            fechaRegistro: new Date().toUTCString()
-          },
-          opera: {
-            potencia: { valor: 7.200, idEstatus: 1 },
-            voltaje: { valor: 240, idEstatus: 1 },
-            corriente: { valor: 30, idEstatus: 1 },
-            caudal: { valor: 1, idEstatus: 1 },
-            idEstatus: 1,    // {1->Normal, 2->Advertencia, 3->Error}
-            estatus: 'Operacion Normal',
-            fechaRegistro: new Date().toUTCString()
-          },
-          estado: 1   // {1->Encendido, 2->Apagado, 3->Bloqueado}
+      alerta: ''
+    };
+  },
+  methods: {
+    async guardar() {
+      this.alerta = '';
+      try {
+        const url = 'http://localhost:3000/api/dispositivos';
+        // El backend espera que potencia, voltaje, etc., sean objetos JSON
+        // y nuestro 'this.dispositivo' ya tiene esa estructura.
+        const response = await axios.post(url, this.dispositivo);
+
+        console.log('Dispositivo guardado:', response.data);
+        
+        // Opcional: Emitir un evento para que la lista de dispositivos se actualice
+        this.$emit('dispositivo-agregado');
+
+        // Cerrar el modal o limpiar el formulario (depende de tu implementación)
+        // Por ejemplo, si usas un modal de Bootstrap, puedes ocultarlo:
+        const modalElement = this.$refs.modal; // Asegúrate de tener un ref="modal" en tu elemento modal
+        if (modalElement) {
+          const modal = bootstrap.Modal.getInstance(modalElement);
+          if (modal) modal.hide();
         }
-        this.$router.push('/menu/dispositivos')
-      }    
+        
+      } catch (error) {
+        console.error('Error al guardar el dispositivo:', error);
+        this.alerta = 'No se pudo guardar el dispositivo. Verifique los datos.';
+      }
     }
-}
+  }
+};
 </script>
       
 <style scoped>

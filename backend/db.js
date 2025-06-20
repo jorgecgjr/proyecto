@@ -47,7 +47,7 @@ const registerUser = async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const result = await pool.query(
-      'INSERT INTO usuarios (nombre, userName, password) VALUES ($1, $2, $3) RETURNING *',
+      'INSERT INTO usuarios (nombre, username, password) VALUES ($1, $2, $3) RETURNING *',
       [nombre, userName, hashedPassword]
     );
     res.status(201).json(result.rows[0]);
@@ -59,7 +59,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { userName, password } = req.body;
   try {
-    const result = await pool.query('SELECT * FROM usuarios WHERE userName = $1', [userName]);
+    const result = await pool.query('SELECT * FROM usuarios WHERE username = $1', [userName]);
     if (result.rows.length > 0) {
       const user = result.rows[0];
       if (await bcrypt.compare(password, user.password)) {
